@@ -1,9 +1,7 @@
-export interface User {
-    id: string;
-    username: string;
+export interface user {
+    id: number;
+    username : string;
     email: string;
-    password: string;
-  }
-  
-  export const users: User[] = [];
-  
+    password: string; //we hash the password
+
+}

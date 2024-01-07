@@ -1,50 +1,30 @@
 import express from 'express';
-import authRoutes from './routes/authRoutes';
-import bodyParser from 'body-parser';
-import loggerMiddleware from './middleware/logger';
-import errorHandlerMiddleware from './middleware/errorHandler';
-import { signupSchema } from './schema/user';
+import dotenv from 'dotenv';
+import taskRoutes from './routers/taskRoutes';
+import userRouter from './routers/userRoutes';
+import logger from './middlewares/logger';
+import errorHandler from './middlewares/errorHandler';
 
-
+dotenv.config();
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 8000;
 
-// Middleware to parse JSON requests
-app.use(bodyParser.json());
+app.use((req,res,next) => {
+    logger.info(`${req.method} ${req.path}`);
+    next(); 
+})
 
+//body parser middleware
+app.use(express.json());
 
+//routes 
+app.use(taskRoutes);
+app.use(userRouter);
 
-// Logger middleware
-app.use(loggerMiddleware);
+//error handler
+app.use(errorHandler);
 
-// Use the auth routes
-app.use('/auth', authRoutes);
-
-// Default route
-app.get('/', (req, res) => {
-  res.send('Welcome to the Todo App!');
-});
-
-
-
-// Error handler middleware
-app.use(errorHandlerMiddleware);
-
-
-// Validate signup route data
-app.post('/auth/signup', (req, res, next) => {
-    const { error } = signupSchema.validate(req.body);
-    if (error) {
-      return res.status(400).json({ error: error.details[0].message });
-    }
-    next();
-  });
-  
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
-
-
-
+app.listen(PORT,() => {
+    console.log(`Server is running on PORT ${PORT}`);
+})
